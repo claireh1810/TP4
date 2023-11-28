@@ -3,7 +3,7 @@
 # matrice, noté n1, et du nombre de non-zéros de la seconde matrice, noté n2.
 
 # DOK + DOK: O(...)
-# DOK + COO: O(..)
+# DOK + COO: O(...)
 # COO + COO: O(...)
 # COO + DOK: O(...)
 
@@ -155,7 +155,7 @@ class SparseDOK(SparseMatrix):
             newsm.__addvalindok(key, val)
         newsm.nnz = len(newsm.dict)
         return newsm
-
+    
     def __add_with_coo(self, other):
         newsm = SparseDOK(self.m, self.n)
         newsm.dict = self.dict.copy()
