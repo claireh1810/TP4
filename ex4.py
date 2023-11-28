@@ -123,6 +123,8 @@ class SparseDOK(SparseMatrix):
                 raise ValueError("Addition: incompatible matrix dimensions")
             if type(other) is SparseDOK:
                 return self.__add_with_dok(other)
+            elif type(other) is SparseCOO:
+                return self.__add_with_coo(other)
             else:
                 raise ValueError(
                     "Addition of SparseDOK matrix with SparseMatrix"
@@ -151,6 +153,14 @@ class SparseDOK(SparseMatrix):
         newsm.dict = self.dict.copy()
         for key, val in other.dict.items():
             newsm.__addvalindok(key, val)
+        newsm.nnz = len(newsm.dict)
+        return newsm
+
+    def __add_with_coo(self, other):
+        newsm = SparseDOK(self.m, self.n)
+        newsm.dict = self.dict.copy()
+        for i in range(other.nnz):
+            newsm.__addvalindok(other.keys[i], other.values[i])
         newsm.nnz = len(newsm.dict)
         return newsm
 
