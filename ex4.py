@@ -180,8 +180,11 @@ class SparseDOK(SparseMatrix):
         - submatrix: The extracted submatrix, a newly created SparseDOK matrix.
 
         """
-        print("Not implemented yet")
-        return None
+        newsm = SparseDOK
+        for key, val in self.dict.items() and key[0] >= rmin and key[0] < rmax and key[1] >= cmin and key[1]:
+            newsm.dict[key] = val
+        newsm.nnz = len(newsm.dict)
+        return newsm
 
 
 class SparseCOO(SparseMatrix):
@@ -284,10 +287,11 @@ class SparseCOO(SparseMatrix):
                 self.values[ind] = newv
         else:
             for i in range(self.nnz):
-                if key[0] < self.keys[i, 0]:
-                    if key[1] < self.keys[i, 1]:
+                if key[0] < self.keys[i][0]:
+                    if key[1] < self.keys[i][1]:
                         self.keys.insert(i, key)
                         self.values.insert(i, value)
+                        self.nnz += 1
         
     def __add_with_DOK(self, other):
         newsm = SparseCOO(self.m, self.n)
@@ -305,7 +309,6 @@ class SparseCOO(SparseMatrix):
         newsm.nnz = self.nnz
         for i in range(other.nnz):
             newsm.__addvalincoo(other.keys[i], other.values[i])
-        newsm.nnz = len(newsm.values)
         return newsm
 
     # TO BE COMPLETED
@@ -324,8 +327,12 @@ class SparseCOO(SparseMatrix):
         - submatrix: The extracted submatrix, a newly created SparseCOO matrix.
 
         """
-        print("Not implemented yet")
-        return None
+        newsm = SparseCOO(rmax-rmin, cmax-cmin)
+        for i in range(self.nnz) and self.keys[i, 0] >= rmin and self.keys[i, 1] < rmax and self.keys[i, 1] >= cmin and self.keys[i, 1] < cmax:
+            newsm.keys[i] = self.keys[i]
+            newsm.values[i] = newsm.values[i]
+        newsm.nnz = len(self.values)
+        return newsm
 
 
 if __name__ == "__main__":
