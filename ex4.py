@@ -254,8 +254,59 @@ class SparseCOO(SparseMatrix):
         - ValueError: If the dimensions of the matrices are incompatible or if the type
                       of the other matrix is not supported.
         """
-        print("Not implemented yet")
-        return None
+        if issubclass(type(other), SparseMatrix):
+            if self.m != other.m or self.n != other.n:
+                raise ValueError("Addition: incompatible matrix dimensions")
+            if type(other) is SparseDOK:
+                return self.__add_with_DOK(other)
+            elif type(other) is SparseCOO:
+                return self.__add_with_COO(other)
+            else:
+                raise ValueError(
+                    "Addition of SparseDOK matrix with SparseMatrix"
+                    f"of type {type(other)} is impossible"
+                )
+        else:
+            raise ValueError(
+                "Addition of SparseDOK matrix with object of"
+                f"type {type(other)} is impossible"
+            )
+        
+    def __addvalincoo(self, key, value):
+        if key in self.keys:
+            ind = self.keys.index(key)
+            newv = value + self.values[ind]
+            if newv == 0:
+                self.values.remove(value * -1)
+                self.keys.remove(key)
+                self.nnz -= 1
+            else:
+                self.values[ind] = newv
+        else:
+            for i in range(self.nnz):
+                if key[0] < self.keys[i, 0]:
+                    if key[1] < self.keys[i, 1]:
+                        self.keys.insert(i, key)
+                        self.values.insert(i, value)
+        
+    def __add_with_DOK(self, other):
+        newsm = SparseCOO(self.m, self.n)
+        newsm.values = self.values.copy()
+        newsm.keys = self.keys.copy()
+        newsm.nnz = self.nnz
+        for key, val in other.dict.items():
+            newsm.__addvalincoo(key, val)
+        return newsm
+    
+    def __add_with_COO(self, other):
+        newsm = SparseCOO(self.m, self.n)
+        newsm.values = self.values.copy()
+        newsm.keys = self.keys.copy()
+        newsm.nnz = self.nnz
+        for i in range(other.nnz):
+            newsm.__addvalincoo(other.keys[i], other.values[i])
+        newsm.nnz = len(newsm.values)
+        return newsm
 
     # TO BE COMPLETED
     def __getslice(self, rmin, rmax, cmin, cmax):
