@@ -2,10 +2,10 @@
 # d'addition en fonction du type des matrices, du nombre de non-zéros de la première
 # matrice, noté n1, et du nombre de non-zéros de la seconde matrice, noté n2.
 
-# DOK + DOK: O(...)
-# DOK + COO: O(...)
-# COO + COO: O(...)
-# COO + DOK: O(...)
+# DOK + DOK: O(n)
+# DOK + COO: O(n)
+# COO + COO: O(n²)
+# COO + DOK: O(n²)
 
 from bisect import bisect_left
 
