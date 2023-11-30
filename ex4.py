@@ -180,9 +180,10 @@ class SparseDOK(SparseMatrix):
         - submatrix: The extracted submatrix, a newly created SparseDOK matrix.
 
         """
-        newsm = SparseDOK
-        for key, val in self.dict.items() and key[0] >= rmin and key[0] < rmax and key[1] >= cmin and key[1]:
-            newsm.dict[key] = val
+        newsm = SparseDOK((rmax-rmin),(cmax-cmin))
+        for key, val in self.dict.items():
+            if key[0] >= rmin and key[0] < rmax and key[1] >= cmin and key[1] < cmax:
+                newsm.dict[key] = val
         newsm.nnz = len(newsm.dict)
         return newsm
 
@@ -347,10 +348,11 @@ class SparseCOO(SparseMatrix):
         - submatrix: The extracted submatrix, a newly created SparseCOO matrix.
 
         """
-        newsm = SparseCOO(rmax-rmin, cmax-cmin)
-        for i in range(self.nnz) and self.keys[i, 0] >= rmin and self.keys[i, 1] < rmax and self.keys[i, 1] >= cmin and self.keys[i, 1] < cmax:
-            newsm.keys[i] = self.keys[i]
-            newsm.values[i] = newsm.values[i]
+        newsm = SparseCOO((rmax-rmin), (cmax-cmin))
+        for i in range(self.nnz):
+            if self.keys[i][0] >= rmin and self.keys[i][0] < rmax and self.keys[i][1] >= cmin and self.keys[i][1]< cmax:
+                newsm.keys.append(self.keys[i])
+                newsm.values.append(self.values[i])
         newsm.nnz = len(self.values)
         return newsm
 
