@@ -275,40 +275,60 @@ class SparseCOO(SparseMatrix):
                 f"type {type(other)} is impossible"
             )
         
-    def __addvalincoo(self, key, value):
-        if key in self.keys:
-            ind = self.keys.index(key)
+    def __addvalincoo(self, keyLin, value, linTab):
+        key = (keyLin // self.n, keyLin % self.n)
+        if keyLin in linTab:
+            ind = linTab.index(keyLin)
             newv = value + self.values[ind]
-            if newv == 0:
-                self.values.remove(value * -1)
+            if newv == 0.0:
+                val = value * -1
+                self.values.remove(val)
+                linTab.remove(keyLin)
                 self.keys.remove(key)
                 self.nnz -= 1
+                return
             else:
                 self.values[ind] = newv
+                return
         else:
             for i in range(self.nnz):
-                if key[0] < self.keys[i][0]:
-                    if key[1] < self.keys[i][1]:
-                        self.keys.insert(i, key)
-                        self.values.insert(i, value)
-                        self.nnz += 1
-        
+                if keyLin < linTab[i]:
+                    self.keys.insert(i, key)
+                    self.values.insert(i, value)
+                    self.nnz += 1
+                    linTab.insert(i, keyLin)
+                    return
+            self.keys.append(key)
+            self.values.append(value)
+            linTab.append(keyLin)
+            self.nnz += 1
+            return
+            
+                
     def __add_with_DOK(self, other):
         newsm = SparseCOO(self.m, self.n)
         newsm.values = self.values.copy()
         newsm.keys = self.keys.copy()
         newsm.nnz = self.nnz
+        linTab = newsm.values.copy()
+        for i in range(newsm.nnz):
+            linTab[i] = newsm.keys[i][0] * newsm.n + newsm.keys[i][1]
         for key, val in other.dict.items():
-            newsm.__addvalincoo(key, val)
+            keyLin =  key[0] * self.n + key[1]
+            newsm.__addvalincoo(keyLin, val, linTab)
         return newsm
     
     def __add_with_COO(self, other):
         newsm = SparseCOO(self.m, self.n)
         newsm.values = self.values.copy()
         newsm.keys = self.keys.copy()
+        linTab = newsm.values.copy()
         newsm.nnz = self.nnz
+        for i in range(newsm.nnz):
+            linTab[i] = newsm.keys[i][0] * newsm.n + newsm.keys[i][1]
         for i in range(other.nnz):
-            newsm.__addvalincoo(other.keys[i], other.values[i])
+            keyLin = other.keys[i][0] * newsm.n + other.keys[i][1]
+            newsm.__addvalincoo(keyLin, other.values[i], linTab)
         return newsm
 
     # TO BE COMPLETED
