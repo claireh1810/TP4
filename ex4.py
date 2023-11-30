@@ -282,10 +282,9 @@ class SparseCOO(SparseMatrix):
             ind = linTab.index(keyLin)
             newv = value + self.values[ind]
             if newv == 0.0:
-                val = value * -1
-                self.values.remove(val)
-                linTab.remove(keyLin)
-                self.keys.remove(key)
+                del self.values[ind]
+                del linTab[ind]
+                del self.keys[ind]
                 self.nnz -= 1
                 return
             else:
